@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus - Stream</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:       #050d1a;
+      --bg-card:       #0b1729;
+      --bg-input:      #0f1f35;
+      --border:        #1a3050;
+      --accent-cyan:   #00c8ff;
+      --accent-blue:   #2563eb;
+      --accent-glow:   rgba(0, 200, 255, 0.18);
+      --text-primary:  #e8f0fe;
+      --text-muted:    #6b8aad;
+      --text-dim:      #3d5a7a;
+      --danger:        #ef4444;
+      --danger-hover:  #dc2626;
+      --success:       #10b981;
+      --radius-md:     10px;
+      --radius-lg:     16px;
+      --shadow-card:   0 4px 32px rgba(0,0,0,0.5);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(37, 99, 235, 0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 30% at 90% 80%, rgba(0, 200, 255, 0.07) 0%, transparent 60%);
+    }
+
+    /* ── HEADER ───────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(5, 13, 26, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-logo .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    .header-logo span.sep { color: var(--text-dim); font-weight: 300; }
+
+    .header-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      background: rgba(0, 200, 255, 0.1);
+      border: 1px solid rgba(0, 200, 255, 0.25);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ── MAIN ─────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ── SECTION CARD ─────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 14px;
+      background: var(--accent-cyan);
+      border-radius: 2px;
+    }
+
+    /* ── FORM GRID ────────────────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr;
+      gap: 12px;
+      align-items: end;
+    }
+
+    @media (max-width: 680px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="url"] {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      padding: 10px 14px;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input::placeholder { color: var(--text-dim); }
+
+    input:focus {
+      border-color: rgba(0, 200, 255, 0.5);
+      box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.08);
+    }
+
+    /* ── BUTTONS ──────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      padding: 10px 20px;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 28px rgba(37, 99, 235, 0.55);
+      opacity: 0.92;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      padding: 6px 14px;
+      font-size: 0.78rem;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+
+    .btn-add-row {
+      align-self: end;
+    }
+
+    /* ── TOAST NOTIFICATION ───────────────────────────────── */
+    #toast {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      z-index: 999;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 500;
+      max-width: 340px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #toast.toast-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+
+    #toast.toast-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    /* ── LINKS LIST ───────────────────────────────────────── */
+    #links-section { display: none; }
+    #links-section.has-links { display: block; }
+
+    .links-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .link-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: border-color 0.2s, background 0.2s;
+      animation: slideIn 0.25s ease both;
+    }
+
+    .link-item:hover {
+      border-color: rgba(0, 200, 255, 0.3);
+      background: rgba(0, 200, 255, 0.03);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .link-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(0,200,255,0.15));
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .link-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .link-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-url {
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      margin-top: 2px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .link-url:hover { opacity: 1; text-decoration: underline; }
+
+    .link-index {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      min-width: 22px;
+      text-align: right;
+    }
+
+    /* ── EMPTY STATE ──────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-state .empty-icon {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      opacity: 0.35;
+    }
+
+    .empty-state p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ── DIVIDER ──────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 22px 0;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .count-badge {
+      background: rgba(0, 200, 255, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 9px;
+    }
+
+    /* ── FOOTER ───────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 20px;
+      text-align: center;
+      background: rgba(11, 23, 41, 0.6);
+    }
+
+    .footer-line1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .footer-line2 {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .footer-line2 a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .footer-line2 a:hover { opacity: 0.75; text-decoration: underline; }
+
+    /* ── SCROLLBAR ────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+  </style>
+</head>
+<body>
+
+  <!-- ── HEADER ─────────────────────────────────── -->
+  <header>
+    <div class="header-logo">
+      <span class="dot"></span>
+      Nexus <span class="sep">&nbsp;—&nbsp;</span> Stream
+    </div>
+    <span class="header-badge">Admin Panel</span>
+  </header>
+
+  <!-- ── TOAST ──────────────────────────────────── -->
+  <div id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- ── MAIN ───────────────────────────────────── -->
+  <main>
+
+    <!-- Admin Input Card -->
+    <div class="card">
+      <div class="card-title">Add a New Stream Link</div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="admin-password">Admin Password</label>
+          <input type="password" id="admin-password" placeholder="Enter password" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label for="link-name">Link Name</label>
+          <input type="text" id="link-name" placeholder="e.g. Movie Night" />
+        </div>
+        <div class="form-group">
+          <label for="link-url">Link URL</label>
+          <input type="url" id="link-url" placeholder="https://drive.google.com/..." />
+        </div>
+      </div>
+
+      <div style="margin-top: 18px; display:flex; justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="addLink()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Link
+        </button>
+      </div>
+    </div>
+
+    <!-- Links Display Card (always shown) -->
+    <div class="card">
+      <div class="section-label">
+        Saved Stream Links
+        <span class="count-badge" id="count-badge">0</span>
+      </div>
+
+      <div id="links-list" class="links-list">
+        <!-- populated by JS -->
+      </div>
+
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">📂</div>
+        <p>No links added yet. Use the form above to add your first stream link.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────── -->
+  <footer>
+    <div class="footer-line1">Briefly Animated X 闇のcoders</div>
+    <div class="footer-line2">
+      If you have any query please contact us&nbsp;<a href="mailto:kenshiyamino632@gmail.com">kenshiyamino632@gmail.com</a>
+    </div>
+  </footer>
+
+  <!-- ── JAVASCRIPT ─────────────────────────────── -->
+  <script>
+    const ADMIN_PASSWORD = 'hinata056';
+    const STORAGE_KEY    = 'nexus_stream_links';
+
+    /* ── Helpers ──────────────────────────────────────────── */
+    function getLinks() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveLinks(links) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+    }
+
+    function verifyPassword() {
+      const pwd = document.getElementById('admin-password').value.trim();
+      if (pwd !== ADMIN_PASSWORD) {
+        showToast('Incorrect password. Access denied.', 'error');
+        return false;
+      }
+      return true;
+    }
+
+    let toastTimer = null;
+    function showToast(message, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = message;
+      t.className = `show toast-${type}`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.className = ''; }, 3200);
+    }
+
+    /* ── Render ───────────────────────────────────────────── */
+    function renderLinks() {
+      const links   = getLinks();
+      const list    = document.getElementById('links-list');
+      const empty   = document.getElementById('empty-state');
+      const badge   = document.getElementById('count-badge');
+
+      badge.textContent = links.length;
+      list.innerHTML    = '';
+
+      if (links.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+
+      links.forEach((link, index) => {
+        const item = document.createElement('div');
+        item.className = 'link-item';
+        item.innerHTML = `
+          <div class="link-icon">🎬</div>
+          <div class="link-info">
+            <div class="link-name">${escapeHTML(link.name)}</div>
+            <a class="link-url" href="${escapeHTML(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(link.url)}</a>
+          </div>
+          <span class="link-index">#${index + 1}</span>
+          <button class="btn btn-danger" onclick="removeLink(${index})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Remove
+          </button>`;
+        list.appendChild(item);
+      });
+    }
+
+    /* ── Add Link ─────────────────────────────────────────── */
+    function addLink() {
+      if (!verifyPassword()) return;
+
+      const nameEl = document.getElementById('link-name');
+      const urlEl  = document.getElementById('link-url');
+      const name   = nameEl.value.trim();
+      const url    = urlEl.value.trim();
+
+      if (!name) { showToast('Please enter a link name.', 'error'); nameEl.focus(); return; }
+      if (!url)  { showToast('Please enter a URL.', 'error'); urlEl.focus(); return; }
+
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        showToast('URL must start with http:// or https://', 'error');
+        urlEl.focus();
+        return;
+      }
+
+      const links = getLinks();
+      links.push({ name, url, addedAt: Date.now() });
+      saveLinks(links);
+      renderLinks();
+
+      nameEl.value = '';
+      urlEl.value  = '';
+      showToast(`"${name}" added successfully.`, 'success');
+    }
+
+    /* ── Remove Link ──────────────────────────────────────── */
+    function removeLink(index) {
+      if (!verifyPassword()) return;
+
+      const links = getLinks();
+      if (index < 0 || index >= links.length) return;
+
+      const removed = links.splice(index, 1)[0];
+      saveLinks(links);
+      renderLinks();
+      showToast(`"${removed.name}" removed.`, 'success');
+    }
+
+    /* ── XSS Safety ───────────────────────────────────────── */
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* ── Enter key shortcut ───────────────────────────────── */
+    ['admin-password','link-name','link-url'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') addLink();
+      });
+    });
+
+    /* ── Init ─────────────────────────────────────────────── */
+    renderLinks();
+  </script>
+</body>
+</html>
