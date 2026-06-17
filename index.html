@@ -97,6 +97,58 @@
       50% { opacity: 0.5; transform: scale(0.8); }
     }
 
+    /* ── HEADER USER BAR ──────────────────────────────────── */
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-user .username {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .role-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .role-badge.role-admin {
+      background: rgba(0, 200, 255, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+    }
+
+    .role-badge.role-visitor {
+      background: rgba(16, 185, 129, 0.12);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-logout:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
     /* ── MAIN ─────────────────────────────────────────────── */
     main {
       flex: 1;
@@ -107,6 +159,94 @@
       display: flex;
       flex-direction: column;
       gap: 28px;
+    }
+
+    /* ── LOCK SCREEN ──────────────────────────────────────── */
+    .lock-screen-wrapper {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .lock-card {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .lock-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    .mode-toggle {
+      position: relative;
+      display: flex;
+      gap: 4px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px;
+      margin-bottom: 22px;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      height: calc(100% - 8px);
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+    }
+
+    .mode-toggle[data-mode="admin"] .toggle-slider {
+      transform: translateX(100%);
+    }
+
+    .mode-btn {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 9px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 999px;
+      transition: color 0.25s;
+    }
+
+    .mode-btn.active { color: #04111f; }
+
+    .lock-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .field-hint {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: -4px;
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center;
+      margin-top: 22px;
+      padding: 12px 20px;
+      font-size: 0.9rem;
     }
 
     /* ── SECTION CARD ─────────────────────────────────────── */
@@ -148,8 +288,12 @@
       align-items: end;
     }
 
+    .form-grid.cols-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
     @media (max-width: 680px) {
-      .form-grid { grid-template-columns: 1fr; }
+      .form-grid, .form-grid.cols-2 { grid-template-columns: 1fr; }
     }
 
     .form-group {
@@ -269,11 +413,8 @@
       color: #fca5a5;
     }
 
-    /* ── LINKS LIST ───────────────────────────────────────── */
-    #links-section { display: none; }
-    #links-section.has-links { display: block; }
-
-    .links-list {
+    /* ── LIST ROWS (links + subscribers) ─────────────────── */
+    .links-list, .subscribers-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -340,6 +481,13 @@
     }
 
     .link-url:hover { opacity: 1; text-decoration: underline; }
+
+    .link-meta {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
 
     .link-index {
       font-family: 'Space Grotesk', sans-serif;
@@ -442,31 +590,107 @@
       <span class="dot"></span>
       Nexus <span class="sep">&nbsp;—&nbsp;</span> Stream
     </div>
-    <span class="header-badge">Admin Panel</span>
+    <div class="header-user" id="user-bar" style="display:none;">
+      <span class="username" id="user-bar-name"></span>
+      <span class="role-badge" id="user-bar-role"></span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+    <span class="header-badge" id="header-badge-locked">Secured</span>
   </header>
 
   <!-- ── TOAST ──────────────────────────────────── -->
   <div id="toast" role="alert" aria-live="polite"></div>
 
-  <!-- ── MAIN ───────────────────────────────────── -->
-  <main>
+  <!-- ── LOCK SCREEN ────────────────────────────── -->
+  <div class="lock-screen-wrapper" id="lock-screen-wrapper">
+    <div class="card lock-card">
+      <div class="card-title">Secure Access</div>
+      <p class="lock-subtitle">Choose how you'd like to sign in. Visitors need an active account issued by an administrator; administrators unlock full control with the master password.</p>
 
-    <!-- Admin Input Card -->
-    <div class="card">
-      <div class="card-title">Add a New Stream Link</div>
+      <div class="mode-toggle" id="mode-toggle" data-mode="visitor">
+        <div class="toggle-slider"></div>
+        <button type="button" class="mode-btn active" id="btn-mode-visitor" onclick="setLoginMode('visitor')">Visitor Login</button>
+        <button type="button" class="mode-btn" id="btn-mode-admin" onclick="setLoginMode('admin')">Admin Only</button>
+      </div>
 
-      <div class="form-grid">
+      <div class="lock-fields" id="visitor-fields">
         <div class="form-group">
-          <label for="admin-password">Admin Password</label>
-          <input type="password" id="admin-password" placeholder="Enter password" autocomplete="off" />
+          <label for="visitor-username">Username</label>
+          <input type="text" id="visitor-username" placeholder="Enter your username" autocomplete="off" data-enter="login" />
         </div>
         <div class="form-group">
+          <label for="visitor-passkey">Password (Passkey)</label>
+          <input type="password" id="visitor-passkey" placeholder="Enter your passkey" autocomplete="off" data-enter="login" />
+        </div>
+      </div>
+
+      <div class="lock-fields" id="admin-fields" style="display:none;">
+        <div class="form-group">
+          <label for="admin-secret">Admin Secret Password</label>
+          <input type="password" id="admin-secret" placeholder="Enter master password" autocomplete="off" data-enter="login" />
+        </div>
+        <p class="field-hint">Grants full access to manage subscriber accounts and stream links.</p>
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="handleLogin()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Unlock Access
+      </button>
+    </div>
+  </div>
+
+  <!-- ── MAIN DASHBOARD (hidden until authenticated) ─────── -->
+  <main id="main-dashboard" style="display:none;">
+
+    <!-- Admin: Manage Subscriber Accounts -->
+    <div class="card admin-only" id="manage-users-card" style="display:none;">
+      <div class="card-title">Manage Subscriber Accounts</div>
+
+      <div class="form-grid cols-2">
+        <div class="form-group">
+          <label for="new-username">Assign Username</label>
+          <input type="text" id="new-username" placeholder="e.g. user1" autocomplete="off" data-enter="createUser" />
+        </div>
+        <div class="form-group">
+          <label for="new-passkey">Assign Password</label>
+          <input type="text" id="new-passkey" placeholder="e.g. pass056" autocomplete="off" data-enter="createUser" />
+        </div>
+      </div>
+
+      <div style="margin-top: 18px; display:flex; justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="createUser()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+          Create User Account
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">
+        Active Subscribers
+        <span class="count-badge" id="subscriber-count-badge">0</span>
+      </div>
+
+      <div id="subscribers-list" class="subscribers-list"></div>
+
+      <div id="subscribers-empty-state" class="empty-state">
+        <div class="empty-icon">👤</div>
+        <p>No subscriber accounts yet. Create one using the form above.</p>
+      </div>
+    </div>
+
+    <!-- Admin: Add New Stream Link -->
+    <div class="card admin-only" id="add-link-card" style="display:none;">
+      <div class="card-title">Add a New Stream Link</div>
+
+      <div class="form-grid cols-2">
+        <div class="form-group">
           <label for="link-name">Link Name</label>
-          <input type="text" id="link-name" placeholder="e.g. Movie Night" />
+          <input type="text" id="link-name" placeholder="e.g. Movie Night" data-enter="addLink" />
         </div>
         <div class="form-group">
           <label for="link-url">Link URL</label>
-          <input type="url" id="link-url" placeholder="https://drive.google.com/..." />
+          <input type="url" id="link-url" placeholder="https://drive.google.com/..." data-enter="addLink" />
         </div>
       </div>
 
@@ -478,20 +702,18 @@
       </div>
     </div>
 
-    <!-- Links Display Card (always shown) -->
-    <div class="card">
+    <!-- Stream Feed (visible to everyone signed in) -->
+    <div class="card" id="links-card">
       <div class="section-label">
         Saved Stream Links
         <span class="count-badge" id="count-badge">0</span>
       </div>
 
-      <div id="links-list" class="links-list">
-        <!-- populated by JS -->
-      </div>
+      <div id="links-list" class="links-list"></div>
 
       <div id="empty-state" class="empty-state">
         <div class="empty-icon">📂</div>
-        <p>No links added yet. Use the form above to add your first stream link.</p>
+        <p>No links added yet.</p>
       </div>
     </div>
 
@@ -507,25 +729,27 @@
 
   <!-- ── JAVASCRIPT ─────────────────────────────── -->
   <script>
-    // ── CONFIGURATION ──
+    /* ── CONFIGURATION ──────────────────────────────────────
+       Admin password is intentionally a static client-side
+       constant by design request. Anyone who can view this
+       file's source can read it — that's an inherent limit
+       of doing auth in a single static HTML file with no
+       backend. Treat this as a casual access gate, not a
+       hardened security boundary.                            */
     const ADMIN_PASSWORD = 'hinata056';
-    
+
     // TODO: JSONBin se mili apni keys yahan dalein:
-    const BIN_ID = "6a3171abda38895dfeca8f58"; 
+    const BIN_ID = "6a3171abda38895dfeca8f58";
     const MASTER_KEY = "$2a$10$XxQsH9v5I.s1MisSj1Z25.70i2vXRgX2Z83qPkFO7WYO4jGaC4eoW";
-    
+
     const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-    /* ── Helpers ──────────────────────────────────────────── */
-    function verifyPassword() {
-      const pwd = document.getElementById('admin-password').value.trim();
-      if (pwd !== ADMIN_PASSWORD) {
-        showToast('Incorrect password. Access denied.', 'error');
-        return false;
-      }
-      return true;
-    }
+    /* ── Global State ─────────────────────────────────────── */
+    let cachedRecord = { links: [], passes: [] };
+    let currentUser  = null;   // { role: 'admin' } or { role: 'visitor', username }
+    let loginMode    = 'visitor';
 
+    /* ── Toast Helper ─────────────────────────────────────── */
     let toastTimer = null;
     function showToast(message, type = 'success') {
       const t = document.getElementById('toast');
@@ -535,36 +759,167 @@
       toastTimer = setTimeout(() => { t.className = ''; }, 3200);
     }
 
-    /* ── Fetch Links (Server se data lana) ────────────────── */
-    async function fetchLinks() {
+    /* ── XSS Safety ───────────────────────────────────────── */
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* ── Server Sync ──────────────────────────────────────── */
+    async function fetchRecord(notifyOnError = true) {
       try {
         const response = await fetch(`${API_URL}/latest`, {
           headers: { "X-Master-Key": MASTER_KEY }
         });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const resData = await response.json();
-        // Agar record ke andar links hai toh wo render hoga, nahi toh khali array
-        const links = (resData.record && resData.record.links) ? resData.record.links : [];
-        renderLinks(links);
+        const record  = (resData && resData.record) ? resData.record : {};
+        cachedRecord = {
+          links:  Array.isArray(record.links)  ? record.links  : [],
+          passes: Array.isArray(record.passes) ? record.passes : []
+        };
+        return true;
       } catch (error) {
         console.error("Error fetching data:", error);
-        showToast("Links load nahi ho paye. Key check karein!", "error");
+        if (notifyOnError) showToast("Could not reach the server. Check your connection.", "error");
+        return false;
       }
     }
 
-    /* ── Render Links On Screen ───────────────────────────── */
-    function renderLinks(links) {
-      const list    = document.getElementById('links-list');
-      const empty   = document.getElementById('empty-state');
-      const badge   = document.getElementById('count-badge');
+    async function syncToServer() {
+      const response = await fetch(API_URL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': MASTER_KEY
+        },
+        body: JSON.stringify({
+          links:  cachedRecord.links,
+          passes: cachedRecord.passes
+        })
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    }
+
+    /* ── Lock Screen: Mode Toggle ─────────────────────────── */
+    function setLoginMode(mode) {
+      loginMode = mode;
+      document.getElementById('mode-toggle').dataset.mode = mode;
+
+      document.getElementById('btn-mode-visitor').classList.toggle('active', mode === 'visitor');
+      document.getElementById('btn-mode-admin').classList.toggle('active', mode === 'admin');
+
+      document.getElementById('visitor-fields').style.display = mode === 'visitor' ? 'flex' : 'none';
+      document.getElementById('admin-fields').style.display   = mode === 'admin'   ? 'flex' : 'none';
+
+      document.getElementById('visitor-username').value = '';
+      document.getElementById('visitor-passkey').value  = '';
+      document.getElementById('admin-secret').value     = '';
+    }
+
+    /* ── Authentication ───────────────────────────────────── */
+    async function handleLogin() {
+      if (loginMode === 'admin') {
+        const secretEl = document.getElementById('admin-secret');
+        const secret   = secretEl.value.trim();
+
+        if (!secret) { showToast('Please enter the admin secret password.', 'error'); secretEl.focus(); return; }
+
+        if (secret !== ADMIN_PASSWORD) {
+          showToast('Incorrect admin password. Access denied.', 'error');
+          secretEl.value = '';
+          secretEl.focus();
+          return;
+        }
+
+        await fetchRecord();
+        currentUser = { role: 'admin', username: 'Administrator' };
+        secretEl.value = '';
+        enterDashboard();
+        showToast('Welcome back, Administrator.', 'success');
+        return;
+      }
+
+      const userEl = document.getElementById('visitor-username');
+      const passEl = document.getElementById('visitor-passkey');
+      const username = userEl.value.trim();
+      const passkey  = passEl.value.trim();
+
+      if (!username) { showToast('Please enter your username.', 'error'); userEl.focus(); return; }
+      if (!passkey)  { showToast('Please enter your passkey.', 'error'); passEl.focus(); return; }
+
+      const ok = await fetchRecord();
+      if (!ok) return;
+
+      const match = cachedRecord.passes.find(p => p.username === username && p.passkey === passkey);
+
+      if (!match) {
+        showToast('Invalid username or passkey.', 'error');
+        passEl.value = '';
+        passEl.focus();
+        return;
+      }
+
+      currentUser = { role: 'visitor', username };
+      passEl.value = '';
+      enterDashboard();
+      showToast(`Welcome, ${username}.`, 'success');
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('main-dashboard').style.display     = 'none';
+      document.getElementById('user-bar').style.display           = 'none';
+      document.getElementById('header-badge-locked').style.display = 'inline-block';
+      document.getElementById('lock-screen-wrapper').style.display = 'flex';
+      setLoginMode('visitor');
+      showToast('You have been logged out.', 'success');
+    }
+
+    function isAdmin() {
+      return !!(currentUser && currentUser.role === 'admin');
+    }
+
+    /* ── Enter Dashboard After Login ───────────────────────── */
+    function enterDashboard() {
+      document.getElementById('lock-screen-wrapper').style.display = 'none';
+      document.getElementById('header-badge-locked').style.display = 'none';
+      document.getElementById('main-dashboard').style.display      = '';
+
+      const userBar = document.getElementById('user-bar');
+      userBar.style.display = 'flex';
+      document.getElementById('user-bar-name').textContent = currentUser.username;
+
+      const roleBadge = document.getElementById('user-bar-role');
+      roleBadge.textContent = isAdmin() ? 'Admin' : 'Visitor';
+      roleBadge.className   = `role-badge ${isAdmin() ? 'role-admin' : 'role-visitor'}`;
+
+      document.getElementById('manage-users-card').style.display = isAdmin() ? 'block' : 'none';
+      document.getElementById('add-link-card').style.display     = isAdmin() ? 'block' : 'none';
+
+      renderLinks();
+      if (isAdmin()) renderSubscribers();
+    }
+
+    /* ── Render: Stream Links ──────────────────────────────── */
+    function renderLinks() {
+      const list  = document.getElementById('links-list');
+      const empty = document.getElementById('empty-state');
+      const badge = document.getElementById('count-badge');
+      const links = cachedRecord.links;
+      const admin = isAdmin();
 
       badge.textContent = links.length;
-      list.innerHTML    = '';
+      list.innerHTML = '';
 
       if (links.length === 0) {
         empty.style.display = 'block';
         return;
       }
-
       empty.style.display = 'none';
 
       links.forEach((link, index) => {
@@ -577,17 +932,121 @@
             <a class="link-url" href="${escapeHTML(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(link.url)}</a>
           </div>
           <span class="link-index">#${index + 1}</span>
-          <button class="btn btn-danger" onclick="removeLink(${index})">
+          ${admin ? `<button class="btn btn-danger" onclick="removeLink(${index})">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             Remove
+          </button>` : ''}`;
+        list.appendChild(item);
+      });
+    }
+
+    /* ── Render: Subscriber Accounts (admin only) ──────────── */
+    function renderSubscribers() {
+      const list  = document.getElementById('subscribers-list');
+      const empty = document.getElementById('subscribers-empty-state');
+      const badge = document.getElementById('subscriber-count-badge');
+      const passes = cachedRecord.passes;
+
+      badge.textContent = passes.length;
+      list.innerHTML = '';
+
+      if (passes.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      passes.forEach((pass, index) => {
+        const item = document.createElement('div');
+        item.className = 'link-item';
+        item.innerHTML = `
+          <div class="link-icon">👤</div>
+          <div class="link-info">
+            <div class="link-name">${escapeHTML(pass.username)}</div>
+            <div class="link-meta">Passkey: ${escapeHTML(pass.passkey)}</div>
+          </div>
+          <button class="btn btn-danger" onclick="deleteUser(${index})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Delete Account
           </button>`;
         list.appendChild(item);
       });
     }
 
-    /* ── Add Link (Server par save karna) ─────────────────── */
+    /* ── Admin: Create User Account ────────────────────────── */
+    async function createUser() {
+      if (!isAdmin()) { showToast('Admin access required.', 'error'); return; }
+
+      const userEl = document.getElementById('new-username');
+      const passEl = document.getElementById('new-passkey');
+      const username = userEl.value.trim();
+      const passkey  = passEl.value.trim();
+
+      if (!username) { showToast('Please enter a username.', 'error'); userEl.focus(); return; }
+      if (!passkey)  { showToast('Please enter a password.', 'error'); passEl.focus(); return; }
+
+      const duplicate = cachedRecord.passes.some(p => p.username.toLowerCase() === username.toLowerCase());
+      if (duplicate) {
+        showToast(`Username "${username}" is already taken.`, 'error');
+        userEl.focus();
+        return;
+      }
+
+      showToast('Creating account... please wait.', 'success');
+
+      try {
+        await fetchRecord(false);
+
+        if (cachedRecord.passes.some(p => p.username.toLowerCase() === username.toLowerCase())) {
+          showToast(`Username "${username}" is already taken.`, 'error');
+          return;
+        }
+
+        cachedRecord.passes.push({ username, passkey, addedAt: Date.now() });
+        await syncToServer();
+
+        userEl.value = '';
+        passEl.value = '';
+        showToast(`Account "${username}" created successfully.`, 'success');
+        renderSubscribers();
+
+      } catch (error) {
+        console.error(error);
+        showToast('Server error. Account was not created.', 'error');
+      }
+    }
+
+    /* ── Admin: Delete User Account ────────────────────────── */
+    async function deleteUser(index) {
+      if (!isAdmin()) { showToast('Admin access required.', 'error'); return; }
+
+      const target = cachedRecord.passes[index];
+      if (!target) return;
+
+      if (!confirm(`Revoke access for "${target.username}"? This cannot be undone.`)) return;
+
+      showToast('Revoking account...', 'success');
+
+      try {
+        await fetchRecord(false);
+        const idx = cachedRecord.passes.findIndex(p => p.username === target.username && p.passkey === target.passkey);
+        const removeAt = idx !== -1 ? idx : index;
+        const removed = cachedRecord.passes.splice(removeAt, 1)[0];
+
+        await syncToServer();
+
+        showToast(`Account "${removed ? removed.username : target.username}" revoked.`, 'success');
+        renderSubscribers();
+
+      } catch (error) {
+        console.error(error);
+        showToast('Server error. Account was not removed.', 'error');
+      }
+    }
+
+    /* ── Admin: Add Stream Link ────────────────────────────── */
     async function addLink() {
-      if (!verifyPassword()) return;
+      if (!isAdmin()) { showToast('Admin access required.', 'error'); return; }
 
       const nameEl = document.getElementById('link-name');
       const urlEl  = document.getElementById('link-url');
@@ -603,87 +1062,73 @@
         return;
       }
 
-      showToast("Adding link... Please wait.", "success");
+      showToast('Adding link... please wait.', 'success');
 
       try {
-        const response = await fetch(`${API_URL}/latest`, {
-          headers: { "X-Master-Key": MASTER_KEY }
-        });
-        const resData = await response.json();
-        const currentLinks = (resData.record && resData.record.links) ? resData.record.links : [];
-
-        currentLinks.push({ name, url, addedAt: Date.now() });
-
-        await fetch(API_URL, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': MASTER_KEY
-          },
-          body: JSON.stringify({ links: currentLinks }) // Naye format mein save
-        });
+        await fetchRecord(false);
+        cachedRecord.links.push({ name, url, addedAt: Date.now() });
+        await syncToServer();
 
         nameEl.value = '';
         urlEl.value  = '';
         showToast(`"${name}" added successfully.`, 'success');
-        renderLinks(currentLinks);
+        renderLinks();
 
       } catch (error) {
         console.error(error);
-        showToast("Server error! Link add nahi ho paya.", "error");
+        showToast('Server error. Link was not added.', 'error');
       }
     }
 
-    /* ── Remove Link (Server se delete karna) ─────────────── */
+    /* ── Admin: Remove Stream Link ─────────────────────────── */
     async function removeLink(index) {
-      if (!verifyPassword()) return;
+      if (!isAdmin()) { showToast('Admin access required.', 'error'); return; }
 
-      showToast("Removing link...", "success");
+      const target = cachedRecord.links[index];
+      if (!target) return;
+
+      showToast('Removing link...', 'success');
 
       try {
-        const response = await fetch(`${API_URL}/latest`, {
-          headers: { "X-Master-Key": MASTER_KEY }
-        });
-        const resData = await response.json();
-        const currentLinks = (resData.record && resData.record.links) ? resData.record.links : [];
+        await fetchRecord(false);
+        const idx = cachedRecord.links.findIndex(l => l.name === target.name && l.url === target.url && l.addedAt === target.addedAt);
+        const removeAt = idx !== -1 ? idx : index;
+        const removed = cachedRecord.links.splice(removeAt, 1)[0];
 
-        const removed = currentLinks.splice(index, 1)[0];
+        await syncToServer();
 
-        await fetch(API_URL, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': MASTER_KEY
-          },
-          body: JSON.stringify({ links: currentLinks }) // Naye format mein save
-        });
-
-        showToast(`"${removed.name}" removed.`, 'success');
-        renderLinks(currentLinks);
+        showToast(`"${removed ? removed.name : target.name}" removed.`, 'success');
+        renderLinks();
 
       } catch (error) {
         console.error(error);
-        showToast("Link remove nahi ho paya.", "error");
+        showToast('Server error. Link was not removed.', 'error');
       }
     }
 
-    /* ── XSS Safety ───────────────────────────────────────── */
-    function escapeHTML(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
+    /* ── Keyboard Shortcuts: Enter to Submit ───────────────── */
+    const enterHandlers = {
+      login:      handleLogin,
+      createUser: createUser,
+      addLink:    addLink
+    };
 
-    /* ── Enter key shortcut ───────────────────────────────── */
-    ['admin-password','link-name','link-url'].forEach(id => {
-      document.getElementById(id).addEventListener('keydown', e => {
-        if (e.key === 'Enter') addLink();
+    document.querySelectorAll('[data-enter]').forEach(el => {
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const handler = enterHandlers[el.dataset.enter];
+          if (handler) handler();
+        }
       });
     });
 
-    // Page load hote hi data automatic fetch hoga
-    fetchLinks();
+    /* ── Startup ────────────────────────────────────────────
+       Lock screen is visible by default (it's the only thing
+       rendered until login). Pre-fetch the record so the
+       visitor/admin check has data ready without an extra
+       round trip on first login attempt.                     */
+    fetchRecord(false);
   </script>
+</body>
+</html>
