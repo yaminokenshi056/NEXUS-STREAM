@@ -620,18 +620,18 @@
       font-size: 0.9rem;
       font-weight: 600;
       color: var(--text-primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .link-url {
       font-size: 0.75rem;
       color: var(--accent-gold);
       text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
       display: block;
       margin-top: 2px;
       opacity: 0.8;
@@ -775,6 +775,94 @@
     ::-webkit-scrollbar-track { background: var(--bg-base); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* ── DESKTOP / MOUSE: VISIBLE HOVER + FOCUS STATES ─────── */
+    @media (hover: hover) and (pointer: fine) {
+      .btn:hover:not(:disabled),
+      .btn-logout:hover,
+      .btn-refresh:hover,
+      .mode-btn:hover:not(.active) {
+        transform: translateY(-1px);
+      }
+
+      .link-item:hover {
+        transform: translateY(-1px);
+      }
+    }
+
+    /* visible, consistent focus rings for keyboard + mouse users */
+    .btn:focus-visible,
+    .btn-logout:focus-visible,
+    .btn-refresh:focus-visible,
+    .mode-btn:focus-visible,
+    .pw-toggle:focus-visible,
+    input:focus-visible,
+    .link-item:focus-visible {
+      outline: 2px solid var(--accent-orange);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.18);
+    }
+
+    .link-item {
+      transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .btn, .btn-logout, .btn-refresh, .mode-btn, .pw-toggle {
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s, background 0.15s, border-color 0.2s, color 0.2s, outline-color 0.15s;
+    }
+
+    /* ── MOBILE: TIGHTER, COMPACT LAYOUT (≤500px) ──────────── */
+    @media (max-width: 500px) {
+      header {
+        padding: 0 14px;
+        height: 56px;
+      }
+
+      .header-logo { font-size: 1.15rem; gap: 6px; }
+      .header-badge { font-size: 0.64rem; padding: 3px 8px; }
+      .header-user { gap: 8px; font-size: 0.72rem; }
+
+      main {
+        padding: 20px 12px 36px;
+        gap: 18px;
+      }
+
+      .lock-screen-wrapper { padding: 20px 12px; }
+
+      .card { padding: 16px; }
+      .card-title { margin-bottom: 14px; }
+
+      .form-grid, .form-grid.cols-2 { gap: 8px; }
+      .form-group { gap: 4px; }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="url"],
+      input[type="search"] {
+        padding: 8px 12px;
+        font-size: 0.825rem;
+      }
+
+      .btn {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        gap: 5px;
+      }
+
+      .btn-block { padding: 10px 16px; margin-top: 16px; }
+
+      .btn-danger { padding: 5px 10px; font-size: 0.72rem; }
+
+      .btn-refresh { width: 22px; height: 22px; }
+
+      .link-item { padding: 10px 12px; gap: 10px; }
+      .link-icon { width: 30px; height: 30px; font-size: 0.9rem; }
+      .link-name { font-size: 0.85rem; }
+      .link-url { font-size: 0.7rem; }
+
+      .modal-box { padding: 18px; }
+      .divider { margin: 16px 0; }
+    }
   </style>
 </head>
 <body oncopy="return true" oncut="return true">
@@ -1001,9 +1089,9 @@
        hardened security boundary.                            */
     const ADMIN_PASSWORD = 'hinata056';
 
-    // TODO: JSONBin se mili apni keys yahan dalein:
-    const BIN_ID = "6a3171abda38895dfeca8f58";
-    const MASTER_KEY = "$2a$10$FgiYpQN0p3RzvH0beA8kXOHGcgE3rqRVrtH3VD0wLGOgN/hdtJWei";
+      // TODO: JSON\bin se mili apni keys yahan dalein:
+    const BIN_ID = "";
+    const MASTER_KEY = "";
 
     const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
     const SESSION_KEY = 'nexusSession';
@@ -1524,7 +1612,14 @@
       finalList.forEach(({ link, index }) => {
         const item = document.createElement('div');
         item.className = 'link-item';
+        item.setAttribute('tabindex', '0');
         item.setAttribute('onclick', `confirmOpenLink(${JSON.stringify(link.url)})`);
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            confirmOpenLink(link.url);
+          }
+        });
         item.innerHTML = `
           <div class="link-icon">🍥</div>
           <div class="link-info">
@@ -1726,6 +1821,62 @@
         showToast('Server error. Link was not removed.', 'error');
       }
     }
+
+    /* ── Global Keyboard Shortcuts (Desktop) ───────────────
+       Alt+R  → refresh dashboard
+       Alt+L  → log out
+       Alt+S  → focus search input
+       Escape → close any open confirmation modal
+       These are ignored while typing in a text field, except
+       Escape, which always closes an open modal.            */
+    document.addEventListener('keydown', (e) => {
+      const target = e.target;
+      const isTyping = target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      );
+
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('confirm-modal');
+        if (modal && modal.classList.contains('show')) {
+          e.preventDefault();
+          closeConfirmModal();
+        }
+        return;
+      }
+
+      if (isTyping) return;
+
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'r': {
+            e.preventDefault();
+            const refreshBtn = document.getElementById('btn-refresh');
+            if (refreshBtn && document.getElementById('main-dashboard').style.display !== 'none') {
+              refreshDashboard();
+            }
+            break;
+          }
+          case 'l': {
+            e.preventDefault();
+            if (document.getElementById('main-dashboard').style.display !== 'none') {
+              logout();
+            }
+            break;
+          }
+          case 's': {
+            e.preventDefault();
+            const searchEl = document.getElementById('link-search');
+            if (searchEl && document.getElementById('main-dashboard').style.display !== 'none') {
+              searchEl.focus();
+              searchEl.select();
+            }
+            break;
+          }
+        }
+      }
+    });
 
     /* ── Keyboard Shortcuts: Enter to Submit ───────────────── */
     const enterHandlers = {
