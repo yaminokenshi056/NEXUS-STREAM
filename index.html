@@ -1,27 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TEMPORARY SHUTDOWN OF WEBAPP</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS-STREAM</title>
+    <style>
+        /* Minimalist Dark UI */
+        :root {
+            --bg: #121212;
+            --surface: #1e1e1e;
+            --surface-hover: #2a2a2a;
+            --text: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent: #6bb8f5;
+            --danger: #f56b6b;
+            --border: #333;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--surface);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        main {
+            flex: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+
+        input, select, button {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.7rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus { border-color: var(--accent); }
+
+        button { cursor: pointer; font-weight: bold; }
+        button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--text); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .form-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .form-group input { flex: 1; min-width: 200px; }
+        .form-group select { min-width: 150px; }
+
+        .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+        .filters button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        .search-bar { width: 100%; box-sizing: border-box; }
+
+        ul { list-style: none; padding: 0; margin: 0; }
+        li {
+            background: var(--bg);
+            margin-bottom: 0.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            word-break: break-word;
+        }
+
+        li a { color: var(--accent); text-decoration: none; flex: 1; font-weight: 500; }
+        li a:hover { text-decoration: underline; }
+        
+        .cat-tag { font-size: 0.8rem; color: var(--text-muted); background: var(--surface); padding: 0.3rem 0.6rem; border-radius: 4px; white-space: nowrap; }
+        
+        .btn-remove { background: transparent; color: var(--danger); border-color: var(--danger); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+        .btn-remove:hover:not(:disabled) { background: var(--danger); color: #fff; }
+
+        #statusMsg { text-align: center; color: var(--accent); height: 20px; margin-bottom: 1rem; font-size: 0.9rem; }
+
+        footer {
+            background-color: var(--surface);
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .animated-name {
+            display: inline-block;
+            font-weight: bold;
+            animation: glow 2.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { color: var(--text); text-shadow: none; }
+            100% { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+        }
+    </style>
 </head>
-
 <body>
-    <P>  <h1>NEXUS-STREAM</h1>   </P>
-    <br>
-    <hr>
-    <P>    <h2>THIS SITE IS TEMPORARILY SHUTDOWN</h2>  </P>
-    <br>
-    <hr>
-    <H3> <a href="/ANIME.HTML">ANIME (CLICK HERE)</a> </H3>
-      <br>
-     <H3><a href="/GAME.HTML">GAME (CLICK HERE)</a></H3>
-      <br>
-     <H3><a href="/EDU.BOOKS.MANGA">EDU.BOOKS.MANGA (CLICK HERE)</a></H3>
-      <br>
-      <hr>
-    <p> <H3>THIS SITE MEDE BY (Breifly Animeted X 闇のcoders) </H3> </P>
-</body>
 
+    <header>NEXUS-STREAM</header>
+
+    <main>
+        <div id="statusMsg"></div>
+
+        <div class="card">
+            <h2>Add New Link</h2>
+            <form id="linkForm" class="form-group">
+                <input type="text" id="linkName" placeholder="Link Name" required>
+                <input type="url" id="linkUrl" placeholder="https://..." required>
+                <select id="linkCat">
+                    <option value="anime">Anime / Movies</option>
+                    <option value="games">Games</option>
+                    <option value="books">Edu / Books / Manga</option>
+                </select>
+                <button type="submit" id="addBtn">Add</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Explore Collection</h2>
+            <input type="text" id="searchBar" class="search-bar" placeholder="Search links by name..." onkeyup="renderLinks()">
+            <div class="filters" id="filterContainer">
+                <button class="active" onclick="setCategory('all', this)">All</button>
+                <button onclick="setCategory('anime', this)">Anime / Movies</button>
+                <button onclick="setCategory('games', this)">Games</button>
+                <button onclick="setCategory('books', this)">Edu / Books / Manga</button>
+            </div>
+        </div>
+
+        <ul id="linkList"></ul>
+    </main>
+
+    <footer>
+        MADE BY <span class="animated-name">X闇のcoders</span><br>
+        If you have any query please contact us at: <a href="mailto:kenshiyamino632@gmail.com" style="color: var(--accent); text-decoration: none;">kenshiyamino632@gmail.com</a>
+    </footer>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION (Add your keys here)
+        // ==========================================
+        const BIN_ID = '6a3171abda38895dfeca8f58 ';
+        const API_KEY = '$2a$10$FgiYpQN0p3RzvH0beA8kXOHGcgE3rqRVrtH3VD0wLGOgN/hdtJWei ';
+        const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+        let linksData = [];
+        let currentCategory = 'all';
+        let isProcessing = false;
+
+        const statusDisplay = document.getElementById('statusMsg');
+
+        // ==========================================
+        // DATA FETCHING & SAVING
+        // ==========================================
+        async function fetchLinks() {
+            try {
+                statusDisplay.textContent = 'Loading database...';
+                const response = await fetch(BIN_URL, { headers: { 'X-Master-Key': API_KEY } });
+                if (!response.ok) throw new Error("API Limit reached or invalid keys.");
+                
+                const data = await response.json();
+                linksData = data.record.links || [];
+                statusDisplay.textContent = '';
+                renderLinks();
+            } catch (error) {
+                statusDisplay.textContent = 'Error loading database.';
+                statusDisplay.style.color = 'var(--danger)';
+            }
+        }
+
+        async function saveLinksToServer(onSuccessCallback) {
+            if (isProcessing) return;
+            isProcessing = true;
+            statusDisplay.textContent = 'Syncing to database...';
+            document.querySelectorAll('button').forEach(b => b.disabled = true);
+
+            try {
+                const response = await fetch(BIN_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                    body: JSON.stringify({ links: linksData })
+                });
+                if (!response.ok) throw new Error("Failed to save");
+                
+                statusDisplay.textContent = 'Successfully Synced!';
+                if(onSuccessCallback) onSuccessCallback();
+                setTimeout(() => statusDisplay.textContent = '', 2000);
+            } catch (error) {
+                statusDisplay.textContent = 'Failed to sync! Try again later.';
+                statusDisplay.style.color = 'var(--danger)';
+            } finally {
+                isProcessing = false;
+                document.querySelectorAll('button').forEach(b => b.disabled = false);
+            }
+        }
+
+        // ==========================================
+        // UI AND LOGIC
+        // ==========================================
+        function renderLinks() {
+            const list = document.getElementById('linkList');
+            list.innerHTML = '';
+            const query = document.getElementById('searchBar').value.toLowerCase().trim();
+
+            linksData.forEach(link => {
+                if (currentCategory !== 'all' && link.category !== currentCategory) return;
+                if (query && !link.name.toLowerCase().includes(query)) return;
+
+                const li = document.createElement('li');
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-remove';
+                delBtn.textContent = 'Remove';
+                delBtn.onclick = () => deleteLink(link.id);
+                
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.textContent = link.name; 
+                a.target = "_blank";
+                a.rel = "noopener noreferrer"; // Security measure for external links
+
+                const span = document.createElement('span');
+                span.className = 'cat-tag';
+                // Format category display nicely
+                const catNames = { 'anime': 'Anime/Movies', 'games': 'Games', 'books': 'Books/Edu' };
+                span.textContent = catNames[link.category] || link.category;
+
+                li.appendChild(delBtn);
+                li.appendChild(a);
+                li.appendChild(span);
+                list.appendChild(li);
+            });
+
+            if(list.innerHTML === '') {
+                list.innerHTML = '<li style="justify-content: center; color: var(--text-muted);">No links found</li>';
+            }
+        }
+
+        document.getElementById('linkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nameInput = document.getElementById('linkName').value.trim();
+            let urlInput = document.getElementById('linkUrl').value.trim();
+            
+            if (!nameInput || !urlInput) return alert("Fields cannot be empty or just spaces.");
+            
+            // Fix URL protocol bug
+            if (!/^https?:\/\//i.test(urlInput)) urlInput = 'https://' + urlInput;
+
+            const newLink = {
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 5), // Fix ID collision
+                name: nameInput,
+                url: urlInput,
+                category: document.getElementById('linkCat').value
+            };
+
+            linksData.push(newLink);
+            renderLinks();
+            
+            // Only clear form if save succeeds
+            saveLinksToServer(() => {
+                document.getElementById('linkForm').reset();
+            });
+        });
+
+        function deleteLink(id) {
+            if(isProcessing) return;
+            const pass = prompt("ADMIN REQUIRED: Enter password to remove link:");
+            if (pass === 'hinata056') {
+                linksData = linksData.filter(l => l.id !== id);
+                renderLinks();
+                saveLinksToServer();
+            } else if (pass !== null) {
+                alert("Incorrect password. Access denied.");
+            }
+        }
+
+        function setCategory(cat, btnElement) {
+            currentCategory = cat;
+            // Update active button state
+            document.querySelectorAll('#filterContainer button').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderLinks();
+        }
+
+        // ==========================================
+        // SECURITY (Anti-Inspect & Restrictions)
+        // ==========================================
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        document.onkeydown = function(e) {
+            // Block F12
+            if (e.keyCode === 123) return false;
+            
+            // Block Ctrl/Cmd + Shift + I/J/C (Windows & Mac)
+            const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+            if (isCtrlOrCmd && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+                return false;
+            }
+            // Block Ctrl/Cmd + U (View Source)
+            if (isCtrlOrCmd && e.keyCode === 85) return false;
+            
+            // Block Cmd + Option + I / C / J (Specific Mac overrides)
+            if (e.metaKey && e.altKey && (e.keyCode === 73 || e.keyCode === 67 || e.keyCode === 74)) {
+                return false;
+            }
+        };
+
+        // Initialize application
+        fetchLinks();
+    </script>
+</body>
 </html>
