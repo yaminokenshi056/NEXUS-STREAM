@@ -92,9 +92,22 @@
             border-radius: 6px;
             border: 1px solid var(--border);
             display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            word-break: break-word;
+        }
+
+        .li-main {
+            display: flex;
             align-items: center;
             gap: 1rem;
-            word-break: break-word;
+        }
+
+        .li-admin-row {
+            display: flex;
+            gap: 0.5rem;
+            padding-top: 0.6rem;
+            border-top: 1px dashed var(--border);
         }
 
         li a { color: var(--accent); text-decoration: none; flex: 1; font-weight: 500; }
@@ -105,7 +118,91 @@
         .btn-remove { background: transparent; color: var(--danger); border-color: var(--danger); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
         .btn-remove:hover:not(:disabled) { background: var(--danger); color: #fff; }
 
+        .btn-rename { background: transparent; color: var(--accent); border-color: var(--accent); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+        .btn-rename:hover:not(:disabled) { background: var(--accent); color: #000; }
+
+        .btn-play { background: var(--accent); color: #000; border-color: var(--accent); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+        .btn-play:hover:not(:disabled) { opacity: 0.85; }
+
+        .link-count { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+
         #statusMsg { text-align: center; color: var(--accent); height: 20px; margin-bottom: 1rem; font-size: 0.9rem; }
+
+        .sort-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+        .sort-controls button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+        .sort-label { color: var(--text-muted); font-size: 0.85rem; align-self: center; margin-right: 0.25rem; }
+
+        /* Viewer Modal */
+        .viewer-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .viewer-overlay.open { display: flex; }
+        .viewer-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 1000px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .viewer-header span { font-weight: bold; word-break: break-word; }
+        .viewer-close { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.8rem; }
+        .viewer-close:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .viewer-body {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            min-height: 300px;
+        }
+        .viewer-body video, .viewer-body iframe {
+            width: 100%;
+            height: 70vh;
+            border: none;
+            display: block;
+        }
+        .viewer-body img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        .viewer-error {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 2rem;
+            max-width: 500px;
+        }
+        .viewer-error a {
+            display: inline-block;
+            margin-top: 1rem;
+            background: var(--accent);
+            color: #000;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
         footer {
             background-color: var(--surface);
@@ -158,10 +255,25 @@
                 <button onclick="setCategory('games', this)">Games</button>
                 <button onclick="setCategory('books', this)">Edu / Books / Manga</button>
             </div>
+            <div class="sort-controls">
+                <span class="sort-label">Sort:</span>
+                <button id="sortAlpha" onclick="setSort('alpha', this)">A–Z</button>
+                <button id="sortTime" class="active" onclick="setSort('time', this)">Time Added</button>
+            </div>
         </div>
 
         <ul id="linkList"></ul>
     </main>
+
+    <div class="viewer-overlay" id="viewerOverlay">
+        <div class="viewer-box">
+            <div class="viewer-header">
+                <span id="viewerTitle"></span>
+                <button class="viewer-close" onclick="closeViewer()">Close ✕</button>
+            </div>
+            <div class="viewer-body" id="viewerBody"></div>
+        </div>
+    </div>
 
     <footer>
         MADE BY <span class="animated-name">Breifly Animeted X 闇のcoders</span><br>
@@ -179,6 +291,7 @@
         let linksData = [];
         let currentCategory = 'all';
         let isProcessing = false;
+        let currentSort = 'time'; // 'time' or 'alpha'
 
         const statusDisplay = document.getElementById('statusMsg');
 
@@ -235,38 +348,283 @@
             list.innerHTML = '';
             const query = document.getElementById('searchBar').value.toLowerCase().trim();
 
-            linksData.forEach(link => {
-                if (currentCategory !== 'all' && link.category !== currentCategory) return;
-                if (query && !link.name.toLowerCase().includes(query)) return;
+            let filtered = linksData.filter(link => {
+                if (currentCategory !== 'all' && link.category !== currentCategory) return false;
+                if (query && !link.name.toLowerCase().includes(query)) return false;
+                return true;
+            });
 
+            // Sort
+            if (currentSort === 'alpha') {
+                filtered = filtered.slice().sort((a, b) => a.name.localeCompare(b.name));
+            } else {
+                filtered = filtered.slice().sort((a, b) => {
+                    const ta = parseInt(a.id) || 0;
+                    const tb = parseInt(b.id) || 0;
+                    return ta - tb;
+                });
+            }
+
+            filtered.forEach(link => {
                 const li = document.createElement('li');
-                
+                const mainRow = document.createElement('div');
+                mainRow.className = 'li-main';
+
+                let openBtn;
+                if (link.category === 'anime' || link.category === 'books') {
+                    openBtn = document.createElement('button');
+                    openBtn.className = 'btn-play';
+                    openBtn.textContent = link.category === 'anime' ? '▶ Play' : '👁 View';
+                    openBtn.onclick = () => openViewer(link);
+
+                    const nameLabel = document.createElement('span');
+                    nameLabel.style.flex = '1';
+                    nameLabel.style.fontWeight = '500';
+                    nameLabel.style.color = 'var(--accent)';
+                    nameLabel.textContent = link.name;
+
+                    mainRow.appendChild(nameLabel);
+                    mainRow.appendChild(openBtn);
+                } else {
+                    openBtn = document.createElement('a');
+                    openBtn.href = link.url;
+                    openBtn.target = "_blank";
+                    openBtn.rel = "noopener noreferrer";
+                    openBtn.textContent = link.name;
+                    openBtn.style.flex = '1';
+                    openBtn.onclick = () => incrementCount(link.id);
+                    mainRow.appendChild(openBtn);
+                }
+
+                const span = document.createElement('span');
+                span.className = 'cat-tag';
+                const catNames = { 'anime': 'Anime/Movies', 'games': 'Games', 'books': 'Books/Edu' };
+                span.textContent = catNames[link.category] || link.category;
+                mainRow.appendChild(span);
+
+                const countSpan = document.createElement('span');
+                countSpan.className = 'link-count';
+                countSpan.textContent = `Opened: ${link.count || 0}`;
+                mainRow.appendChild(countSpan);
+
+                // Separate admin row, locked behind password
+                const adminRow = document.createElement('div');
+                adminRow.className = 'li-admin-row';
+
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'btn-rename';
+                renameBtn.textContent = 'Rename';
+                renameBtn.onclick = () => renameLink(link.id);
+
                 const delBtn = document.createElement('button');
                 delBtn.className = 'btn-remove';
                 delBtn.textContent = 'Remove';
                 delBtn.onclick = () => deleteLink(link.id);
-                
-                const a = document.createElement('a');
-                a.href = link.url;
-                a.textContent = link.name; 
-                a.target = "_blank";
-                a.rel = "noopener noreferrer"; // Security measure for external links
 
-                const span = document.createElement('span');
-                span.className = 'cat-tag';
-                // Format category display nicely
-                const catNames = { 'anime': 'Anime/Movies', 'games': 'Games', 'books': 'Books/Edu' };
-                span.textContent = catNames[link.category] || link.category;
+                adminRow.appendChild(renameBtn);
+                adminRow.appendChild(delBtn);
 
-                li.appendChild(delBtn);
-                li.appendChild(a);
-                li.appendChild(span);
+                li.appendChild(mainRow);
+                li.appendChild(adminRow);
                 list.appendChild(li);
             });
 
             if(list.innerHTML === '') {
                 list.innerHTML = '<li style="justify-content: center; color: var(--text-muted);">No links found</li>';
             }
+        }
+
+        // ==========================================
+        // ADMIN PASSWORD LOCK
+        // ==========================================
+        const ADMIN_PASSWORD = 'hinata056';
+        let adminUnlockedUntil = 0; // timestamp; stays unlocked for a short session window
+
+        function checkAdminPass() {
+            const now = Date.now();
+            if (now < adminUnlockedUntil) return true; // already unlocked recently
+            const pass = prompt("ADMIN REQUIRED: Enter password to continue:");
+            if (pass === null) return false;
+            if (pass === ADMIN_PASSWORD) {
+                adminUnlockedUntil = now + 5 * 60 * 1000; // unlocked for 5 minutes
+                return true;
+            }
+            alert("Incorrect password. Access denied.");
+            return false;
+        }
+
+        function setSort(mode, btnElement) {
+            currentSort = mode;
+            document.querySelectorAll('.sort-controls button').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderLinks();
+        }
+
+        function incrementCount(id) {
+            const link = linksData.find(l => l.id === id);
+            if (!link) return;
+            link.count = (link.count || 0) + 1;
+            renderLinks();
+            saveLinksToServer();
+        }
+
+        function renameLink(id) {
+            if (!checkAdminPass()) return;
+            const link = linksData.find(l => l.id === id);
+            if (!link) return;
+            const newName = prompt("Enter new name:", link.name);
+            if (newName === null) return;
+            const trimmed = newName.trim();
+            if (!trimmed) return alert("Name cannot be empty.");
+            link.name = trimmed;
+            renderLinks();
+            saveLinksToServer();
+        }
+
+        // ==========================================
+        // VIDEO / IMAGE / PDF VIEWER
+        // ==========================================
+        // Hosts known to block iframe embedding (send X-Frame-Options / CSP frame-ancestors)
+        const BLOCKED_EMBED_HOSTS = [
+            'terabox.com', '1024terabox.com', 'teraboxapp.com',
+            'mediafire.com', 'mega.nz', 'dropbox.com'
+        ];
+
+        function getEmbedInfo(url) {
+            // Returns { type: 'video'|'iframe'|'image'|'pdf'|'blocked', src }
+            const lower = url.toLowerCase();
+            let hostname = '';
+            try { hostname = new URL(url).hostname.replace(/^www\./, ''); } catch (e) {}
+
+            // Google Drive — convert share links to the /preview embed format
+            let m = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (m) {
+                return { type: 'iframe', src: `https://drive.google.com/file/d/${m[1]}/preview` };
+            }
+            m = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+            if (m) {
+                return { type: 'iframe', src: `https://drive.google.com/file/d/${m[1]}/preview` };
+            }
+
+            // Known hosts that block embedding outright — don't even try, show fallback immediately
+            if (BLOCKED_EMBED_HOSTS.some(h => hostname === h || hostname.endsWith('.' + h))) {
+                return { type: 'blocked', src: url };
+            }
+
+            // YouTube
+            m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{6,})/);
+            if (m) return { type: 'iframe', src: `https://www.youtube.com/embed/${m[1]}` };
+
+            // Vimeo
+            m = url.match(/vimeo\.com\/(\d+)/);
+            if (m) return { type: 'iframe', src: `https://player.vimeo.com/video/${m[1]}` };
+
+            // Dailymotion
+            m = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
+            if (m) return { type: 'iframe', src: `https://www.dailymotion.com/embed/video/${m[1]}` };
+
+            // Direct video file
+            if (/\.(mp4|webm|ogg|mov|m3u8|mkv)(\?.*)?$/i.test(lower)) {
+                return { type: 'video', src: url };
+            }
+
+            // Direct image file
+            if (/\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i.test(lower)) {
+                return { type: 'image', src: url };
+            }
+
+            // PDF file
+            if (/\.pdf(\?.*)?$/i.test(lower)) {
+                return { type: 'pdf', src: url };
+            }
+
+            // Fallback: try iframe embed for unknown video/site links
+            return { type: 'iframe', src: url, unknownHost: true };
+        }
+
+        function showViewerError(body, link, message) {
+            body.innerHTML = '';
+            const wrap = document.createElement('div');
+            wrap.className = 'viewer-error';
+            const p = document.createElement('p');
+            p.textContent = message;
+            const a = document.createElement('a');
+            a.href = link.url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = 'Open in new tab instead';
+            a.onclick = () => incrementCount(link.id);
+            wrap.appendChild(p);
+            wrap.appendChild(a);
+            body.appendChild(wrap);
+        }
+
+        function openViewer(link) {
+            const overlay = document.getElementById('viewerOverlay');
+            const body = document.getElementById('viewerBody');
+            const title = document.getElementById('viewerTitle');
+
+            title.textContent = link.name;
+            body.innerHTML = '';
+
+            const info = getEmbedInfo(link.url);
+
+            if (info.type === 'blocked') {
+                showViewerError(body, link, "This site doesn't allow its pages to be shown inside another site (that's a setting on their end, not a bug here) — so it can't be played/viewed in-page.");
+                overlay.classList.add('open');
+                return;
+            }
+
+            if (info.type === 'video') {
+                const video = document.createElement('video');
+                video.src = info.src;
+                video.controls = true;
+                video.autoplay = true;
+                video.style.maxHeight = '80vh';
+                video.style.width = '100%';
+                video.onerror = () => showViewerError(body, link, "This video couldn't be loaded directly — the host may block direct linking.");
+                body.appendChild(video);
+            } else if (info.type === 'image') {
+                const img = document.createElement('img');
+                img.src = info.src;
+                img.onerror = () => showViewerError(body, link, "This image couldn't be loaded — the host may block direct linking.");
+                body.appendChild(img);
+            } else if (info.type === 'pdf') {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'display:flex;flex-direction:column;width:100%;height:100%;';
+
+                const iframe = document.createElement('iframe');
+                iframe.src = info.src;
+                iframe.style.flex = '1';
+
+                const hintLink = document.createElement('a');
+                hintLink.href = link.url;
+                hintLink.target = '_blank';
+                hintLink.rel = 'noopener noreferrer';
+                hintLink.textContent = "PDF not showing? Open in new tab instead";
+                hintLink.style.cssText = 'display:block;text-align:center;padding:0.6rem;color:var(--accent);background:var(--surface);font-size:0.85rem;';
+                hintLink.onclick = () => incrementCount(link.id);
+
+                wrap.appendChild(iframe);
+                wrap.appendChild(hintLink);
+                body.appendChild(wrap);
+            } else {
+                const iframe = document.createElement('iframe');
+                iframe.src = info.src;
+                iframe.allow = "autoplay; fullscreen; encrypted-media";
+                iframe.allowFullscreen = true;
+                body.appendChild(iframe);
+            }
+
+            overlay.classList.add('open');
+            incrementCount(link.id);
+        }
+
+        function closeViewer() {
+            const overlay = document.getElementById('viewerOverlay');
+            const body = document.getElementById('viewerBody');
+            overlay.classList.remove('open');
+            body.innerHTML = ''; // stop playback
         }
 
         document.getElementById('linkForm').addEventListener('submit', function(e) {
@@ -298,14 +656,10 @@
 
         function deleteLink(id) {
             if(isProcessing) return;
-            const pass = prompt("ADMIN REQUIRED: Enter password to remove link:");
-            if (pass === 'hinata056') {
-                linksData = linksData.filter(l => l.id !== id);
-                renderLinks();
-                saveLinksToServer();
-            } else if (pass !== null) {
-                alert("Incorrect password. Access denied.");
-            }
+            if (!checkAdminPass()) return;
+            linksData = linksData.filter(l => l.id !== id);
+            renderLinks();
+            saveLinksToServer();
         }
 
         function setCategory(cat, btnElement) {
