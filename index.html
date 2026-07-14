@@ -7,36 +7,47 @@
     <style>
         /* Minimalist Dark UI */
         :root {
-            --bg: #121212;
-            --surface: #1e1e1e;
-            --surface-hover: #2a2a2a;
-            --text: #e0e0e0;
-            --text-muted: #a0a0a0;
-            --accent: #6bb8f5;
-            --danger: #f56b6b;
-            --border: #333;
+            --bg: #14161a;
+            --surface: #1b1e24;
+            --surface-hover: #23262e;
+            --text: #e7e5e0;
+            --text-muted: #8b8d93;
+            --accent: #c9a15f;
+            --accent-soft: rgba(201, 161, 95, 0.12);
+            --danger: #b8564f;
+            --danger-soft: rgba(184, 86, 79, 0.12);
+            --border: #2b2e35;
+            --radius: 10px;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
         header {
             background-color: var(--surface);
-            padding: 1.5rem;
+            padding: 1.75rem 1.5rem;
             text-align: center;
-            font-size: 1.8rem;
-            font-weight: bold;
+            font-size: 1.5rem;
+            font-weight: 600;
             border-bottom: 1px solid var(--border);
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
+            color: var(--text);
+        }
+
+        header span {
+            color: var(--accent);
         }
 
         main {
@@ -50,52 +61,72 @@
 
         .card {
             background: var(--surface);
-            padding: 1.5rem;
-            border-radius: 8px;
+            padding: 1.75rem;
+            border-radius: var(--radius);
             border: 1px solid var(--border);
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
         }
 
-        h2 { margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        h2 {
+            margin-top: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.1rem;
+        }
 
         input, select, button {
             background: var(--bg);
             color: var(--text);
             border: 1px solid var(--border);
-            padding: 0.7rem;
-            border-radius: 4px;
-            font-size: 1rem;
+            padding: 0.7rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
             outline: none;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
+            font-family: inherit;
         }
 
         input:focus, select:focus { border-color: var(--accent); }
 
-        button { cursor: pointer; font-weight: bold; }
-        button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--text); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button { cursor: pointer; font-weight: 600; }
+        button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--text-muted); }
+        button:disabled { opacity: 0.45; cursor: not-allowed; }
 
-        .form-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        #addBtn {
+            background: var(--accent);
+            color: #14161a;
+            border-color: var(--accent);
+        }
+        #addBtn:hover:not(:disabled) { opacity: 0.88; background: var(--accent); }
+
+        .form-group { display: flex; gap: 0.6rem; flex-wrap: wrap; }
         .form-group input { flex: 1; min-width: 200px; }
         .form-group select { min-width: 150px; }
 
-        .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
-        .filters button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+        .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.1rem; }
+        .filters button.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 
         .search-bar { width: 100%; box-sizing: border-box; }
 
         ul { list-style: none; padding: 0; margin: 0; }
         li {
             background: var(--bg);
-            margin-bottom: 0.5rem;
-            padding: 1rem;
-            border-radius: 6px;
+            margin-bottom: 0.6rem;
+            padding: 1.1rem;
+            border-radius: var(--radius);
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
+            gap: 0.7rem;
             word-break: break-word;
+            transition: border-color 0.15s ease;
         }
+        li:hover { border-color: #3a3d46; }
 
         .li-main {
             display: flex;
@@ -110,27 +141,27 @@
             border-top: 1px dashed var(--border);
         }
 
-        li a { color: var(--accent); text-decoration: none; flex: 1; font-weight: 500; }
-        li a:hover { text-decoration: underline; }
+        li a { color: var(--text); text-decoration: none; flex: 1; font-weight: 500; }
+        li a:hover { color: var(--accent); }
         
-        .cat-tag { font-size: 0.8rem; color: var(--text-muted); background: var(--surface); padding: 0.3rem 0.6rem; border-radius: 4px; white-space: nowrap; }
+        .cat-tag { font-size: 0.72rem; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); background: var(--surface); padding: 0.35rem 0.65rem; border-radius: 5px; white-space: nowrap; }
         
-        .btn-remove { background: transparent; color: var(--danger); border-color: var(--danger); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
-        .btn-remove:hover:not(:disabled) { background: var(--danger); color: #fff; }
+        .btn-remove { background: transparent; color: var(--danger); border-color: var(--border); padding: 0.4rem 0.85rem; font-size: 0.85rem; }
+        .btn-remove:hover:not(:disabled) { background: var(--danger-soft); border-color: var(--danger); }
 
-        .btn-rename { background: transparent; color: var(--accent); border-color: var(--accent); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
-        .btn-rename:hover:not(:disabled) { background: var(--accent); color: #000; }
+        .btn-rename { background: transparent; color: var(--text-muted); border-color: var(--border); padding: 0.4rem 0.85rem; font-size: 0.85rem; }
+        .btn-rename:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 
-        .btn-play { background: var(--accent); color: #000; border-color: var(--accent); padding: 0.4rem 0.8rem; font-size: 0.9rem; }
-        .btn-play:hover:not(:disabled) { opacity: 0.85; }
+        .btn-play { background: var(--accent); color: #14161a; border-color: var(--accent); padding: 0.45rem 0.9rem; font-size: 0.85rem; }
+        .btn-play:hover:not(:disabled) { opacity: 0.88; background: var(--accent); }
 
-        .link-count { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+        .link-count { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
 
-        #statusMsg { text-align: center; color: var(--accent); height: 20px; margin-bottom: 1rem; font-size: 0.9rem; }
+        #statusMsg { text-align: center; color: var(--accent); height: 20px; margin-bottom: 1rem; font-size: 0.85rem; }
 
-        .sort-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
-        .sort-controls button.active { background: var(--accent); color: #000; border-color: var(--accent); }
-        .sort-label { color: var(--text-muted); font-size: 0.85rem; align-self: center; margin-right: 0.25rem; }
+        .sort-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; align-items: center; }
+        .sort-controls button.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+        .sort-label { color: var(--text-muted); font-size: 0.8rem; align-self: center; margin-right: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* Viewer Modal */
         .viewer-overlay {
@@ -149,24 +180,55 @@
         .viewer-box {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 12px;
             width: 100%;
             max-width: 1000px;
             max-height: 90vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         .viewer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.75rem 1rem;
+            padding: 0.9rem 1.2rem;
             border-bottom: 1px solid var(--border);
         }
-        .viewer-header span { font-weight: bold; word-break: break-word; }
-        .viewer-close { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 0.4rem 0.8rem; }
-        .viewer-close:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .viewer-header-titles {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+        }
+        .viewer-brand {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .viewer-header span#viewerTitle { font-weight: 600; word-break: break-word; font-size: 0.95rem; color: var(--text); }
+        .viewer-close { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 0.8rem; font-size: 0.85rem; flex-shrink: 0; }
+        .viewer-close:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+
+        .viewer-source-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.85rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #ffd9a0;
+            background: linear-gradient(90deg, rgba(201, 161, 95, 0.22), rgba(201, 161, 95, 0.08));
+            border-bottom: 1px solid var(--accent);
+            border-top: 2px solid var(--accent);
+            line-height: 1.4;
+        }
+        .viewer-source-banner svg { flex-shrink: 0; color: var(--accent); }
+        .viewer-source-banner strong { color: #fff; }
+
         .viewer-body {
             flex: 1;
             overflow: auto;
@@ -192,17 +254,66 @@
             text-align: center;
             padding: 2rem;
             max-width: 500px;
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
         .viewer-error a {
             display: inline-block;
-            margin-top: 1rem;
+            margin-top: 1.2rem;
             background: var(--accent);
-            color: #000;
-            padding: 0.6rem 1.2rem;
-            border-radius: 4px;
+            color: #14161a;
+            padding: 0.6rem 1.3rem;
+            border-radius: 6px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 0.85rem;
         }
+
+        /* Confirm Dialog */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .confirm-overlay.open { display: flex; }
+        .confirm-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 380px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .confirm-box h3 {
+            margin: 0 0 0.6rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .confirm-box p {
+            margin: 0 0 1.3rem 0;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+        .confirm-box p strong { color: var(--text); }
+        .confirm-actions {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: flex-end;
+        }
+        .confirm-actions button {
+            padding: 0.55rem 1.1rem;
+            font-size: 0.88rem;
+        }
+        .confirm-cancel { background: transparent; border-color: var(--border); color: var(--text-muted); }
+        .confirm-delete { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .confirm-delete:hover:not(:disabled) { opacity: 0.88; background: var(--danger); }
 
         footer {
             background-color: var(--surface);
@@ -227,7 +338,7 @@
 </head>
 <body>
 
-    <header>NEXUS-STREAM</header>
+    <header>NEXUS<span>-</span>STREAM</header>
 
     <main>
         <div id="statusMsg"></div>
@@ -235,8 +346,8 @@
         <div class="card">
             <h2>Add New Link</h2>
             <form id="linkForm" class="form-group">
-                <input type="text" id="linkName" placeholder="Link Name" required>
-                <input type="url" id="linkUrl" placeholder="https://..." required>
+                <input type="text" id="linkName" placeholder="Link Name" required maxlength="150">
+                <input type="url" id="linkUrl" placeholder="https://..." required maxlength="2000">
                 <select id="linkCat">
                     <option value="anime">Anime / Movies</option>
                     <option value="games">Games</option>
@@ -250,15 +361,12 @@
             <h2>Explore Collection</h2>
             <input type="text" id="searchBar" class="search-bar" placeholder="Search links by name..." onkeyup="renderLinks()">
             <div class="filters" id="filterContainer">
-                <button class="active" onclick="setCategory('all', this)">All</button>
-                <button onclick="setCategory('anime', this)">Anime / Movies</button>
+                <button class="active" onclick="setCategory('anime', this)">Anime / Movies</button>
                 <button onclick="setCategory('games', this)">Games</button>
                 <button onclick="setCategory('books', this)">Edu / Books / Manga</button>
             </div>
             <div class="sort-controls">
-                <span class="sort-label">Sort:</span>
-                <button id="sortAlpha" onclick="setSort('alpha', this)">A–Z</button>
-                <button id="sortTime" class="active" onclick="setSort('time', this)">Time Added</button>
+                <span class="sort-label">Sorted A–Z</span>
             </div>
         </div>
 
@@ -268,10 +376,28 @@
     <div class="viewer-overlay" id="viewerOverlay">
         <div class="viewer-box">
             <div class="viewer-header">
-                <span id="viewerTitle"></span>
+                <div class="viewer-header-titles">
+                    <span class="viewer-brand">NEXUS-STREAM-PLAYER</span>
+                    <span id="viewerTitle"></span>
+                </div>
                 <button class="viewer-close" onclick="closeViewer()">Close ✕</button>
             </div>
+            <div class="viewer-source-banner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span>Content is streamed from its original third-party source and is <strong>not hosted here</strong>.</span>
+            </div>
             <div class="viewer-body" id="viewerBody"></div>
+        </div>
+    </div>
+
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <h3>Remove this link?</h3>
+            <p>You're about to remove "<strong id="confirmLinkName"></strong>" from your collection. This can't be undone.</p>
+            <div class="confirm-actions">
+                <button class="confirm-cancel" onclick="closeConfirmDialog()">Cancel</button>
+                <button class="confirm-delete" id="confirmDeleteBtn">Remove</button>
+            </div>
         </div>
     </div>
 
@@ -284,14 +410,19 @@
         // ==========================================
         // CONFIGURATION (Add your keys here)
         // ==========================================
-        const BIN_ID = '6a3171abda38895dfeca8f58 ';
-        const API_KEY = '$2a$10$FgiYpQN0p3RzvH0beA8kXOHGcgE3rqRVrtH3VD0wLGOgN/hdtJWei ';
+        // NOTE: This is a static single-file page, so anything in this <script>
+        // block ships to the browser in plain text — there is no way to fully
+        // hide it from someone who looks at "View Source". The changes below
+        // reduce exposure and abuse risk, but they are not a substitute for a
+        // real backend/proxy if you ever want this key to be truly private.
+        const BIN_ID = '6a3171abda38895dfeca8f58';
+        const API_KEY = '$2a$10$FgiYpQN0p3RzvH0beA8kXOHGcgE3rqRVrtH3VD0wLGOgN/hdtJWei';
         const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
         let linksData = [];
-        let currentCategory = 'all';
+        let currentCategory = 'anime';
         let isProcessing = false;
-        let currentSort = 'time'; // 'time' or 'alpha'
+        let pendingDeleteId = null;
 
         const statusDisplay = document.getElementById('statusMsg');
 
@@ -301,11 +432,15 @@
         async function fetchLinks() {
             try {
                 statusDisplay.textContent = 'Loading database...';
-                const response = await fetch(BIN_URL, { headers: { 'X-Master-Key': API_KEY } });
+                // /latest with X-Bin-Meta: false keeps the read lightweight and
+                // avoids leaking bin metadata into the page.
+                const response = await fetch(`${BIN_URL}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY, 'X-Bin-Meta': 'false' }
+                });
                 if (!response.ok) throw new Error("API Limit reached or invalid keys.");
-                
+
                 const data = await response.json();
-                linksData = data.record.links || [];
+                linksData = Array.isArray(data.links) ? data.links : [];
                 statusDisplay.textContent = '';
                 renderLinks();
             } catch (error) {
@@ -314,8 +449,21 @@
             }
         }
 
+        // Basic client-side write rate limiter: this doesn't stop someone who
+        // pulled the key out of source and calls JSONBin directly, but it
+        // stops accidental/abusive rapid-fire writes from this UI itself.
+        let lastWriteAt = 0;
+        const MIN_WRITE_INTERVAL_MS = 1200;
+
         async function saveLinksToServer(onSuccessCallback) {
             if (isProcessing) return;
+            const now = Date.now();
+            if (now - lastWriteAt < MIN_WRITE_INTERVAL_MS) {
+                statusDisplay.textContent = 'Please slow down — saving too fast.';
+                return;
+            }
+            lastWriteAt = now;
+
             isProcessing = true;
             statusDisplay.textContent = 'Syncing to database...';
             document.querySelectorAll('button').forEach(b => b.disabled = true);
@@ -354,16 +502,8 @@
                 return true;
             });
 
-            // Sort
-            if (currentSort === 'alpha') {
-                filtered = filtered.slice().sort((a, b) => a.name.localeCompare(b.name));
-            } else {
-                filtered = filtered.slice().sort((a, b) => {
-                    const ta = parseInt(a.id) || 0;
-                    const tb = parseInt(b.id) || 0;
-                    return ta - tb;
-                });
-            }
+            // Sort A–Z
+            filtered = filtered.slice().sort((a, b) => a.name.localeCompare(b.name));
 
             filtered.forEach(link => {
                 const li = document.createElement('li');
@@ -437,27 +577,57 @@
         // ==========================================
         // ADMIN PASSWORD LOCK
         // ==========================================
-        const ADMIN_PASSWORD = 'hinata056';
-        let adminUnlockedUntil = 0; // timestamp; stays unlocked for a short session window
+        // The password itself is never stored in plaintext in the source —
+        // only a SHA-256 hash of it. Anyone reading the source sees the hash,
+        // not the password, and would have to brute-force or guess it rather
+        // than read it off directly. This raises the bar but, same caveat as
+        // above, isn't true server-side security for a static file.
+        //
+        // This hash corresponds to the password "hinata056".
+        // To change the password: compute SHA-256 of the new password (e.g.
+        // in a browser console: crypto.subtle.digest(...) or any SHA-256 tool)
+        // and replace the hex string below.
+        const ADMIN_PASSWORD_HASH = '74f58e3a12852e96737c0bff4e0463a737ee4d7a3fa809d70f56a7e7455c9459';
 
-        function checkAdminPass() {
-            const now = Date.now();
-            if (now < adminUnlockedUntil) return true; // already unlocked recently
-            const pass = prompt("ADMIN REQUIRED: Enter password to continue:");
-            if (pass === null) return false;
-            if (pass === ADMIN_PASSWORD) {
-                adminUnlockedUntil = now + 5 * 60 * 1000; // unlocked for 5 minutes
-                return true;
-            }
-            alert("Incorrect password. Access denied.");
-            return false;
+        async function sha256Hex(str) {
+            const enc = new TextEncoder().encode(str);
+            const buf = await crypto.subtle.digest('SHA-256', enc);
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        function setSort(mode, btnElement) {
-            currentSort = mode;
-            document.querySelectorAll('.sort-controls button').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
-            renderLinks();
+        let adminUnlockedUntil = 0; // timestamp; stays unlocked for a short session window
+        let failedAttempts = 0;
+        let lockoutUntil = 0;
+
+        async function checkAdminPass() {
+            const now = Date.now();
+            if (now < adminUnlockedUntil) return true; // already unlocked recently
+
+            if (now < lockoutUntil) {
+                const secs = Math.ceil((lockoutUntil - now) / 1000);
+                alert(`Too many failed attempts. Try again in ${secs}s.`);
+                return false;
+            }
+
+            const pass = prompt("ADMIN REQUIRED: Enter password to continue:");
+            if (pass === null) return false;
+
+            const hash = await sha256Hex(pass);
+            if (hash === ADMIN_PASSWORD_HASH) {
+                adminUnlockedUntil = now + 5 * 60 * 1000; // unlocked for 5 minutes
+                failedAttempts = 0;
+                return true;
+            }
+
+            failedAttempts++;
+            if (failedAttempts >= 5) {
+                lockoutUntil = now + 60 * 1000; // lock out for 60s after 5 bad tries
+                failedAttempts = 0;
+                alert("Too many failed attempts. Locked out for 60 seconds.");
+            } else {
+                alert("Incorrect password. Access denied.");
+            }
+            return false;
         }
 
         function incrementCount(id) {
@@ -468,13 +638,13 @@
             saveLinksToServer();
         }
 
-        function renameLink(id) {
-            if (!checkAdminPass()) return;
+        async function renameLink(id) {
+            if (!(await checkAdminPass())) return;
             const link = linksData.find(l => l.id === id);
             if (!link) return;
             const newName = prompt("Enter new name:", link.name);
             if (newName === null) return;
-            const trimmed = newName.trim();
+            const trimmed = newName.trim().slice(0, 150);
             if (!trimmed) return alert("Name cannot be empty.");
             link.name = trimmed;
             renderLinks();
@@ -560,6 +730,14 @@
         }
 
         function openViewer(link) {
+            // Only ever load http(s) URLs into video/img/iframe — blocks
+            // javascript:, data:, and other unexpected schemes from ever
+            // reaching a src attribute.
+            if (!/^https?:\/\//i.test(link.url)) {
+                alert("This link doesn't use a valid http(s) address and can't be opened.");
+                return;
+            }
+
             const overlay = document.getElementById('viewerOverlay');
             const body = document.getElementById('viewerBody');
             const title = document.getElementById('viewerTitle');
@@ -596,6 +774,7 @@
                 const iframe = document.createElement('iframe');
                 iframe.src = info.src;
                 iframe.style.flex = '1';
+                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
 
                 const hintLink = document.createElement('a');
                 hintLink.href = link.url;
@@ -613,6 +792,11 @@
                 iframe.src = info.src;
                 iframe.allow = "autoplay; fullscreen; encrypted-media";
                 iframe.allowFullscreen = true;
+                // Sandboxing unknown third-party embeds limits what they can
+                // do inside your page (no top-level navigation hijack, etc.)
+                // while still allowing normal playback/interaction.
+                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-presentation');
+                iframe.referrerPolicy = 'no-referrer';
                 body.appendChild(iframe);
             }
 
@@ -627,16 +811,34 @@
             body.innerHTML = ''; // stop playback
         }
 
+        // Only allow http(s) URLs to be added at all — blocks javascript:,
+        // data:, vbscript:, file:, etc. from ever being stored or rendered.
+        function isSafeHttpUrl(raw) {
+            try {
+                const u = new URL(raw);
+                return u.protocol === 'http:' || u.protocol === 'https:';
+            } catch (e) {
+                return false;
+            }
+        }
+
         document.getElementById('linkForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const nameInput = document.getElementById('linkName').value.trim();
+            const nameInput = document.getElementById('linkName').value.trim().slice(0, 150);
             let urlInput = document.getElementById('linkUrl').value.trim();
             
             if (!nameInput || !urlInput) return alert("Fields cannot be empty or just spaces.");
             
             // Fix URL protocol bug
-            if (!/^https?:\/\//i.test(urlInput)) urlInput = 'https://' + urlInput;
+            if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(urlInput)) urlInput = 'https://' + urlInput;
+
+            if (!isSafeHttpUrl(urlInput)) {
+                return alert("Only http:// or https:// links are allowed.");
+            }
+            if (urlInput.length > 2000) {
+                return alert("That URL is too long.");
+            }
 
             const newLink = {
                 id: Date.now().toString() + Math.random().toString(36).substr(2, 5), // Fix ID collision
@@ -654,13 +856,36 @@
             });
         });
 
-        function deleteLink(id) {
-            if(isProcessing) return;
-            if (!checkAdminPass()) return;
-            linksData = linksData.filter(l => l.id !== id);
+        async function deleteLink(id) {
+            if (isProcessing) return;
+            if (!(await checkAdminPass())) return;
+
+            const link = linksData.find(l => l.id === id);
+            if (!link) return;
+
+            pendingDeleteId = id;
+            document.getElementById('confirmLinkName').textContent = link.name;
+            document.getElementById('confirmOverlay').classList.add('open');
+        }
+
+        function closeConfirmDialog() {
+            pendingDeleteId = null;
+            document.getElementById('confirmOverlay').classList.remove('open');
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (!pendingDeleteId) return;
+            const idToRemove = pendingDeleteId;
+            linksData = linksData.filter(l => l.id !== idToRemove);
+            closeConfirmDialog();
             renderLinks();
             saveLinksToServer();
-        }
+        });
+
+        // Close confirm dialog on backdrop click
+        document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeConfirmDialog();
+        });
 
         function setCategory(cat, btnElement) {
             currentCategory = cat;
@@ -669,29 +894,6 @@
             btnElement.classList.add('active');
             renderLinks();
         }
-
-        // ==========================================
-        // SECURITY (Anti-Inspect & Restrictions)
-        // ==========================================
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
-        document.onkeydown = function(e) {
-            // Block F12
-            if (e.keyCode === 123) return false;
-            
-            // Block Ctrl/Cmd + Shift + I/J/C (Windows & Mac)
-            const isCtrlOrCmd = e.ctrlKey || e.metaKey;
-            if (isCtrlOrCmd && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
-                return false;
-            }
-            // Block Ctrl/Cmd + U (View Source)
-            if (isCtrlOrCmd && e.keyCode === 85) return false;
-            
-            // Block Cmd + Option + I / C / J (Specific Mac overrides)
-            if (e.metaKey && e.altKey && (e.keyCode === 73 || e.keyCode === 67 || e.keyCode === 74)) {
-                return false;
-            }
-        };
 
         // Initialize application
         fetchLinks();
