@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS-STREAM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>NEXUS<span>-</span>STREAM</header>
+
+    <main>
+        <div id="statusMsg"></div>
+
+        <div class="card">
+            <h2>Add New Content</h2>
+            <form id="linkForm" class="form-group">
+                <div class="type-toggle">
+                    <label><input type="radio" name="itemType" value="link" checked> 🔗 Add Link</label>
+                    <label><input type="radio" name="itemType" value="folder"> 📁 Add Folder</label>
+                </div>
+
+                <input type="text" id="linkName" placeholder="Name (e.g. Blue Lock EP 1)" required maxlength="150">
+                <input type="url" id="linkUrl" placeholder="https://..." required maxlength="2000">
+                
+                <select id="linkCat" onchange="updateFormFolders()">
+                    <option value="anime">Anime / Movies</option>
+                    <option value="games">Games / Apps</option>
+                    <option value="books">Edu / Books / Manga</option>
+                </select>
+
+                <select id="linkFolder">
+                    <option value="">-- No Folder (Root) --</option>
+                </select>
+
+                <button type="submit" id="addBtn">Add</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Explore Collection</h2>
+            <input type="text" id="searchBar" class="search-bar" placeholder="Search by name..." onkeyup="renderLinks()">
+            
+            <div class="filters" id="filterContainer">
+                <button class="active" onclick="setCategory('anime', this)">Anime / Movies</button>
+                <button onclick="setCategory('games', this)">Games / Apps</button>
+                <button onclick="setCategory('books', this)">Edu / Books / Manga</button>
+            </div>
+            
+            <div class="breadcrumb" id="breadcrumbArea" style="display: none;">
+                <button class="btn-back" onclick="closeFolder()">🔙 Back to Main Category</button>
+                <span id="currentFolderName" class="current-folder-label"></span>
+            </div>
+        </div>
+
+        <ul id="linkList"></ul>
+    </main>
+
+    <div class="viewer-overlay" id="viewerOverlay">
+        <div class="viewer-box">
+            <div class="viewer-header">
+                <div class="viewer-header-titles">
+                    <span class="viewer-brand">NEXUS-STREAM-PLAYER</span>
+                    <span id="viewerTitle"></span>
+                </div>
+                <button class="viewer-close" onclick="closeViewer()">Close ✕</button>
+            </div>
+            <div class="viewer-source-banner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span>Content is streamed from its original third-party source and is <strong>not hosted here</strong>.</span>
+            </div>
+            <div class="viewer-body" id="viewerBody"></div>
+        </div>
+    </div>
+
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <h3>Remove this item?</h3>
+            <p>You're about to remove "<strong id="confirmLinkName"></strong>". If this is a folder, <strong>all links inside it</strong> will also be deleted. This can't be undone.</p>
+            <div class="confirm-actions">
+                <button class="confirm-cancel" onclick="closeConfirmDialog()">Cancel</button>
+                <button class="confirm-delete" id="confirmDeleteBtn">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-overlay" id="moveOverlay">
+        <div class="confirm-box">
+            <h3>Move "<strong id="moveItemName"></strong>"</h3>
+            <p>Select the destination folder for this link:</p>
+            <select id="moveFolderSelect" style="width: 100%; margin-bottom: 1.5rem;"></select>
+            <div class="confirm-actions">
+                <button class="confirm-cancel" onclick="closeMoveModal()">Cancel</button>
+                <button class="confirm-delete" id="confirmMoveBtn" style="background: var(--accent); border-color: var(--accent); color: #14161a;">Move Item</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        MADE BY <span class="animated-name">Breifly Animeted X 闇のcoders</span><br>
+        If you have any query please contact us at: <a href="mailto:kenshiyamino632@gmail.com" style="color: var(--accent); text-decoration: none;">kenshiyamino632@gmail.com</a>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
