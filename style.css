@@ -156,7 +156,7 @@ li:hover { border-color: #3a3d46; }
     display: flex; 
     align-items: center; 
     gap: 1rem; 
-    flex-wrap: wrap; /* Helps items wrap on small screens */
+    flex-wrap: wrap; 
 }
 .li-admin-row { 
     display: none; /* Hidden for normal users */
@@ -170,26 +170,25 @@ body.admin-mode .li-admin-row {
 }
 
 .item-title { 
-    flex: 1; 
+    flex: 1 1 250px; /* Fix: Stops it from squishing to 0 width */
     font-weight: 500; 
     color: var(--text); 
     display: block; 
-    word-break: break-word; /* Prevents text from becoming vertical line */
+    word-break: normal; /* Fix: Stops letter-by-letter vertical cutting */
     overflow-wrap: break-word;
-    min-width: 0; 
 }
 .item-title.folder { color: var(--accent); font-size: 1.05rem; cursor: pointer; }
 .item-title.folder:hover { text-decoration: underline; }
 
 .item-link {
-    flex: 1; 
+    flex: 1 1 250px; /* Fix: Same fix for links */
     font-weight: 500; 
     color: var(--text); 
     text-decoration: none;
-    word-break: break-word; 
+    word-break: normal; /* Fix: Stops letter-by-letter vertical cutting */
     overflow-wrap: break-word;
-    min-width: 0;
     cursor: pointer;
+    display: block;
 }
 .item-link:hover { color: var(--accent); }
 
